@@ -6,10 +6,10 @@ import { type AnalysisResult, type DebateSession, debateSessions } from "@/lib/m
 import { useState } from "react";
 
 // ── Visual constants ─────────────────────────────────────────
-const VIS = 192;   // visual box px
-const R   = 68;    // orbit radius px
+const VIS = 260;   // visual box px
+const R   = 92;    // orbit radius px
 const C   = VIS / 2;
-const AV  = 30;    // avatar size px
+const AV  = 38;    // avatar size px
 const AH  = AV / 2;
 
 const ORBIT = [
@@ -18,10 +18,10 @@ const ORBIT = [
   { name: "Gamma", angleDeg: 150  }, // bottom-left
 ];
 
-const AGENT_STYLE: Record<string, { avatar: string; avatarClass: string }> = {
-  Alpha: { avatar: "α", avatarClass: "bg-[#2a3031] text-[#e0e0e0]" },
-  Beta:  { avatar: "β", avatarClass: "bg-[#212627] text-[#888]" },
-  Gamma: { avatar: "γ", avatarClass: "bg-[#212525] text-[#666]" },
+const AGENT_STYLE: Record<string, { avatar: string; avatarClass: string; color: string; glowColor: string }> = {
+  Alpha: { avatar: "α", avatarClass: "bg-[#0d2818] text-[#34d399] border border-[#16c784]/30", color: "#34d399", glowColor: "rgba(52,211,153,0.15)" },
+  Beta:  { avatar: "β", avatarClass: "bg-[#1a0f2e] text-[#a78bfa] border border-[#a78bfa]/30", color: "#a78bfa", glowColor: "rgba(167,139,250,0.15)" },
+  Gamma: { avatar: "γ", avatarClass: "bg-[#2a1f0a] text-[#fbbf24] border border-[#fbbf24]/30", color: "#fbbf24", glowColor: "rgba(251,191,36,0.15)" },
 };
 
 interface AgentProcessProps {
@@ -93,24 +93,37 @@ export function AgentProcess({
             className="absolute inset-0 pointer-events-none"
             width={VIS} height={VIS}
           >
+            {/* Gradient definitions for agent connection lines */}
+            <defs>
+              {ORBIT.map((a) => {
+                const meta = AGENT_STYLE[a.name];
+                return (
+                  <radialGradient key={`glow-${a.name}`} id={`glow-${a.name}`}>
+                    <stop offset="0%" stopColor={meta.color} stopOpacity="0.2" />
+                    <stop offset="100%" stopColor={meta.color} stopOpacity="0" />
+                  </radialGradient>
+                );
+              })}
+            </defs>
             <circle
               cx={C} cy={C} r={R}
               fill="none"
-              stroke="#191919"
+              stroke={isSpinning ? "#1a2a20" : "#191919"}
               strokeWidth="1"
               strokeDasharray="3 6"
             />
             {isDone && ORBIT.map((a) => {
               const rad = a.angleDeg * Math.PI / 180;
+              const meta = AGENT_STYLE[a.name];
               return (
                 <line
                   key={a.name}
                   x1={C} y1={C}
                   x2={C + Math.cos(rad) * R}
                   y2={C + Math.sin(rad) * R}
-                  stroke="#16c784"
+                  stroke={meta.color}
                   strokeWidth="0.75"
-                  strokeOpacity="0.18"
+                  strokeOpacity="0.25"
                 />
               );
             })}
@@ -126,14 +139,14 @@ export function AgentProcess({
                   ? "border border-[#16c784]/30 bg-[#16c784]/5"
                   : "border border-[#272c2d] bg-[#181b1c]"
               }`}
-              style={{ width: 56, height: 56 }}
+              style={{ width: 72, height: 72 }}
             >
               {isDone && verdict ? (
                 <>
-                  <span className={`text-[14px] font-bold leading-none ${
+                  <span className={`text-[18px] font-black leading-none tracking-tight ${
                     verdict.direction === "YES" ? "text-[#16c784]" : "text-[#ff6b6b]"
                   }`}>{verdict.direction}</span>
-                  <span className="text-[10px] text-[#555] tabular-nums mt-0.5">
+                  <span className="text-[11px] text-[#555] tabular-nums mt-0.5 font-bold">
                     {verdict.confidence}%
                   </span>
                 </>
@@ -180,23 +193,25 @@ export function AgentProcess({
                 >
                   {/* Avatar */}
                   <div
-                    className={`relative flex items-center justify-center rounded-lg text-[11px] font-bold transition-all duration-500 ${meta.avatarClass} ${
-                      isDone ? "ring-1 ring-white/5 shadow-sm shadow-[#16c784]/10" : ""
-                    }`}
-                    style={{ width: AV, height: AV }}
+                    className={`relative flex items-center justify-center rounded-lg text-[14px] font-black transition-all duration-500 ${meta.avatarClass}`}
+                    style={{
+                      width: AV, height: AV,
+                      boxShadow: isDone ? `0 0 16px ${meta.glowColor}` : isSpinning ? `0 0 10px ${meta.glowColor}` : "none",
+                    }}
                   >
                     {meta.avatar}
                     {/* Vote badge — shown when done */}
                     {isDone && finalVote && (
-                      <span className={`absolute -bottom-1.5 -right-1 text-[7px] font-black px-0.5 rounded-sm leading-none py-[1px] ${
+                      <span className={`absolute -bottom-1.5 -right-1.5 text-[8px] font-black px-1 rounded-sm leading-none py-[2px] ${
                         finalVote.direction === "YES"
-                          ? "bg-[#16c784] text-[#16191a]"
-                          : "bg-[#ff6b6b] text-[#16191a]"
+                          ? "bg-[#16c784] text-[#0a0a0a]"
+                          : "bg-[#ff6b6b] text-[#0a0a0a]"
                       }`}>{finalVote.direction}</span>
                     )}
                   </div>
-                  {/* Name label */}
-                  <span className="text-[8px] text-[#32393a] font-medium mt-1 leading-none select-none">
+                  {/* Name + role label */}
+                  <span className="text-[9px] font-bold mt-1.5 leading-none select-none uppercase tracking-[0.08em]"
+                    style={{ color: meta.color, opacity: 0.7 }}>
                     {a.name}
                   </span>
                 </motion.div>
@@ -251,15 +266,17 @@ export function AgentProcess({
               >
                 <button
                   onClick={() => toggleRound(i)}
-                  className="w-full flex items-center gap-3 px-4 py-3 hover:bg-[#0e0e0e] transition-colors duration-150 text-left"
+                  className="w-full flex items-center gap-3 px-4 py-3.5 hover:bg-[#0e0e0e] transition-colors duration-150 text-left"
                 >
-                  <span className="shrink-0 text-[10px] font-bold text-[#3b4243] bg-[#212525] border border-[#2b3031] rounded-md px-1.5 py-0.5 tracking-widest uppercase">
+                  <span className="shrink-0 text-[11px] font-black text-[#555] tracking-widest uppercase">
                     R{round.round}
                   </span>
-                  <div className="flex items-center gap-1.5">
-                    <span className="text-[12px] font-bold text-[#16c784]">{round.yesCount} YES</span>
-                    <span className="text-[#282828]">·</span>
-                    <span className="text-[12px] font-bold text-[#ff6b6b]">{round.noCount} NO</span>
+                  <div className="flex items-center gap-2">
+                    <span className="text-[13px] font-black text-[#16c784] tabular-nums">{round.yesCount}</span>
+                    <span className="text-[10px] font-bold text-[#16c784]/40 uppercase">Yes</span>
+                    <span className="text-[#222] mx-1">—</span>
+                    <span className="text-[13px] font-black text-[#ff6b6b] tabular-nums">{round.noCount}</span>
+                    <span className="text-[10px] font-bold text-[#ff6b6b]/40 uppercase">No</span>
                   </div>
                   <div className="ml-auto flex items-center gap-2">
                     {isLoading ? (
@@ -287,24 +304,33 @@ export function AgentProcess({
                       transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
                       className="overflow-hidden"
                     >
-                      <div className="px-4 pb-3 space-y-2">
+                      <div className="px-4 pb-4 space-y-2.5">
                         {round.votes.map((vote) => {
                           const meta = AGENT_STYLE[vote.agent];
                           return (
                             <div key={vote.agent} className="flex gap-3">
-                              <div className="shrink-0 flex flex-col items-center gap-1 pt-0.5">
-                                <div className={`h-6 w-6 rounded-md flex items-center justify-center text-[11px] font-bold ${meta.avatarClass}`}>
+                              <div className="shrink-0 flex flex-col items-center gap-1.5 pt-0.5">
+                                <div
+                                  className={`h-7 w-7 rounded-md flex items-center justify-center text-[12px] font-black ${meta.avatarClass}`}
+                                  style={{ boxShadow: `0 0 8px ${meta.glowColor}` }}
+                                >
                                   {meta.avatar}
                                 </div>
-                                <span className={`text-[9px] font-bold tabular-nums ${
+                                <span className={`text-[10px] font-black tabular-nums ${
                                   vote.direction === "YES" ? "text-[#16c784]" : "text-[#ff6b6b]"
                                 }`}>{vote.direction}</span>
                               </div>
-                              <div className="flex-1 min-w-0 bg-[#181b1c] rounded-lg px-3 py-2 border border-[#242829]">
-                                <div className="flex items-center gap-1.5 mb-1">
-                                  <span className="text-[10px] font-semibold text-[#555]">{vote.agent}</span>
-                                  <span className="text-[9px] text-[#32393a]">{AGENT_ROLE[vote.agent]}</span>
-                                  <span className="ml-auto text-[10px] text-[#3b4243] tabular-nums">{vote.confidence}%</span>
+                              <div
+                                className="flex-1 min-w-0 rounded-lg px-3 py-2.5 border border-[#242829] bg-[#181b1c]"
+                                style={{
+                                  borderLeftWidth: 2,
+                                  borderLeftColor: `${meta.color}40`,
+                                }}
+                              >
+                                <div className="flex items-center gap-2 mb-1.5">
+                                  <span className="text-[11px] font-bold" style={{ color: meta.color }}>{vote.agent}</span>
+                                  <span className="text-[10px] text-[#445e51]">{AGENT_ROLE[vote.agent]}</span>
+                                  <span className="ml-auto text-[12px] text-[#666] tabular-nums font-black">{vote.confidence}%</span>
                                 </div>
                                 <p className="text-[11px] text-[#888] leading-relaxed">{vote.argument}</p>
                               </div>
@@ -336,22 +362,27 @@ export function AgentProcess({
               initial={{ opacity: 0, height: 0 }}
               animate={{ opacity: 1, height: "auto" }}
               transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
-              className={`px-4 py-4 ${
-                session.finalVerdict.direction === "YES"
-                  ? "bg-[#16c784]/5"
-                  : "bg-[#ff6b6b]/5"
-              }`}
+              className="px-5 py-5"
             >
-              <div className="flex items-center gap-2 mb-2">
-                <CheckCircle2 className="h-3.5 w-3.5 text-[#16c784]" />
-                <span className="text-[11px] font-bold text-[#16c784] uppercase tracking-wider">Final Verdict</span>
-                <span className={`ml-auto text-[14px] font-bold tabular-nums ${
+              <div className="flex items-baseline justify-between mb-3">
+                <div className="flex items-center gap-2">
+                  <CheckCircle2 className="h-4 w-4 text-[#16c784]" />
+                  <span className="text-[10px] font-black text-[#16c784] uppercase tracking-[0.15em]">Final Verdict</span>
+                </div>
+              </div>
+              <div className="flex items-baseline gap-3 mb-3">
+                <span className={`text-[36px] font-black leading-none tracking-tight tabular-nums ${
                   session.finalVerdict.direction === "YES" ? "text-[#16c784]" : "text-[#ff6b6b]"
                 }`}>
-                  {session.finalVerdict.direction} · {session.finalVerdict.confidence}%
+                  {session.finalVerdict.direction}
+                </span>
+                <span className={`text-[20px] font-black tabular-nums leading-none ${
+                  session.finalVerdict.direction === "YES" ? "text-[#16c784]/40" : "text-[#ff6b6b]/40"
+                }`}>
+                  {session.finalVerdict.confidence}%
                 </span>
               </div>
-              <p className="text-[11px] text-[#666] leading-relaxed">
+              <p className="text-[12px] text-[#777] leading-relaxed">
                 {session.finalVerdict.summary}
               </p>
             </motion.div>

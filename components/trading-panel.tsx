@@ -57,13 +57,14 @@ export function TradingPanel({ market }: TradingPanelProps) {
       initial={{ opacity: 0, x: 20 }}
       animate={{ opacity: 1, x: 0 }}
       transition={{ duration: 0.5, delay: 0.3 }}
-      className="border border-[#272c2d] rounded-xl overflow-hidden bg-[#181b1c]"
+      className="rounded-xl overflow-hidden border border-[#272c2d] bg-[#161919]"
     >
+
       {/* Header */}
-        <div className="p-4 border-b border-[#272c2d]">
+        <div className="px-4 py-3 border-b border-[#272c2d]">
           <div className="flex items-center gap-2">
-            <ArrowRightLeft className="h-4 w-4 text-[#566163]" />
-            <h3 className="font-semibold text-[13px] text-[#a0a0a0]">Place Order</h3>
+            <ArrowRightLeft className="h-3.5 w-3.5 text-[#555]" />
+            <h3 className="font-black text-[12px] text-[#999] uppercase tracking-[0.1em]">Trade</h3>
         </div>
       </div>
 
@@ -72,20 +73,20 @@ export function TradingPanel({ market }: TradingPanelProps) {
         <div className="grid grid-cols-2 gap-2">
           <button
             onClick={() => setDirection("YES")}
-            className={`py-2.5 rounded-lg text-sm font-semibold transition-all ${
+            className={`py-3 rounded-lg text-[13px] font-black tracking-wide transition-all ${
               direction === "YES"
-                ? "bg-green-500/20 text-green-400 border border-green-500/40 shadow-md shadow-green-500/10"
-                : "bg-muted/30 text-muted-foreground border border-transparent hover:bg-muted/50"
+                ? "bg-[#16c784]/15 text-[#16c784] border border-[#16c784]/40"
+                : "bg-[#1b1f1f] text-[#555] border border-[#272c2d] hover:border-[#333]"
             }`}
           >
             YES {market ? `${Math.round(market.yesPrice * 100)}¢` : "65¢"}
           </button>
           <button
             onClick={() => setDirection("NO")}
-            className={`py-2.5 rounded-lg text-sm font-semibold transition-all ${
+            className={`py-3 rounded-lg text-[13px] font-black tracking-wide transition-all ${
               direction === "NO"
-                ? "bg-red-500/20 text-red-400 border border-red-500/40 shadow-md shadow-red-500/10"
-                : "bg-muted/30 text-muted-foreground border border-transparent hover:bg-muted/50"
+                ? "bg-[#ff6b6b]/12 text-[#ff6b6b] border border-[#ff6b6b]/35"
+                : "bg-[#1b1f1f] text-[#555] border border-[#272c2d] hover:border-[#333]"
             }`}
           >
             NO {market ? `${Math.round(market.noPrice * 100)}¢` : "35¢"}
@@ -164,12 +165,12 @@ export function TradingPanel({ market }: TradingPanelProps) {
         <Button
           onClick={handleTrade}
           disabled={numAmount <= 0}
-          className={`w-full py-5 font-semibold border-0 transition-all ${
+          className={`w-full py-5 font-black text-[13px] tracking-wide border-0 transition-all ${
             numAmount > 0
               ? direction === "YES"
-                ? "bg-gradient-to-r from-green-600 to-green-500 hover:from-green-500 hover:to-green-400 text-white shadow-lg shadow-green-500/20"
-                : "bg-gradient-to-r from-red-600 to-red-500 hover:from-red-500 hover:to-red-400 text-white shadow-lg shadow-red-500/20"
-              : "bg-muted text-muted-foreground"
+                ? "bg-[#16c784] hover:bg-[#13b571] text-[#0a0a0a]"
+                : "bg-[#ff6b6b] hover:bg-[#e55a5a] text-[#0a0a0a]"
+              : "bg-[#1e2223] text-[#444]"
           }`}
         >
           {numAmount > 0 ? (

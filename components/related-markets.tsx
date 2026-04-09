@@ -13,13 +13,13 @@ export function RelatedMarkets({ markets, onSelectMarket }: RelatedMarketsProps)
   if (markets.length === 0) return null;
 
   return (
-    <div className="border border-[#272c2d] rounded-xl overflow-hidden">
+    <div className="rounded-xl overflow-hidden border border-[#272c2d]">
       {/* Header */}
       <div className="px-4 py-3 border-b border-[#212525] flex items-center gap-2">
-        <Layers className="h-4 w-4 text-[#445e51]" />
-        <h3 className="text-[13px] font-semibold text-[#a0a0a0]">Related Markets</h3>
-        <span className="text-[11px] text-[#445e51] ml-auto tabular-nums">
-          {markets.length} markets
+        <Layers className="h-3.5 w-3.5 text-[#555]" />
+        <h3 className="text-[12px] font-black text-[#999] uppercase tracking-[0.1em]">Markets</h3>
+        <span className="text-[11px] text-[#444] ml-auto tabular-nums font-bold">
+          {markets.length}
         </span>
       </div>
 
