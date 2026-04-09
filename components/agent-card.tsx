@@ -73,9 +73,9 @@ export function AgentCard({ agent, index, isAnalyzing, revealDelay }: AgentCardP
           <div className="flex items-center gap-3">
             {/* Avatar */}
             <div
-              className={`flex h-11 w-11 items-center justify-center rounded-xl bg-gradient-to-br ${
-                agentColors[agent.name] || "from-gray-500 to-gray-600"
-              } text-white font-bold text-lg shadow-lg`}
+              className={`flex h-11 w-11 items-center justify-center rounded-xl font-bold text-lg shadow-lg ${
+                agentAvatarClass[agent.name] || "bg-[#2a3031] text-[#e0e0e0]"
+              }`}
             >
               {agent.avatar}
             </div>
